@@ -1,45 +1,69 @@
 import { motion } from "motion/react";
 import { useInView } from "motion/react";
-import { useRef, useState } from "react";
-import { Play, Pause } from "lucide-react";
+import { useRef } from "react";
 
 interface AudioPlayerProps {
   title: string;
+  videoUrl?: string;
+  posterUrl?: string;
 }
 
-export function AudioPlayer({ title }: AudioPlayerProps) {
+export function AudioPlayer({ title, videoUrl, posterUrl }: AudioPlayerProps) {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.5 });
-  const [isPlaying, setIsPlaying] = useState(false);
 
   return (
-    <section ref={ref} className="py-24 px-6">
+    <section ref={ref} className="py-16 sm:py-20 md:py-24 px-4 sm:px-6">
       <div className="max-w-2xl mx-auto">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
-          animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }}
+          animate={
+            isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.95 }
+          }
           transition={{ duration: 0.8 }}
-          className="bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-md rounded-3xl shadow-2xl p-12 text-center"
+          className="bg-gradient-to-br from-white/80 to-white/60 backdrop-blur-md rounded-3xl shadow-2xl p-6 sm:p-8 md:p-12 text-center"
         >
-          <p className="mb-8" style={{ fontFamily: 'var(--font-serif)', fontSize: '1.75rem', color: '#5A4A42' }}>
+          <p
+            className="mb-8"
+            style={{
+              fontFamily: "var(--font-serif)",
+              fontSize: "clamp(1.35rem, 5vw, 1.75rem)",
+              color: "#5A4A42",
+            }}
+          >
             {title}
           </p>
 
-          <button
-            onClick={() => setIsPlaying(!isPlaying)}
-            className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br flex items-center justify-center shadow-lg hover:shadow-xl transition-all hover:scale-105"
-            style={{ background: 'linear-gradient(135deg, #D4B5A0, #8B7355)' }}
-          >
-            {isPlaying ? (
-              <Pause className="w-8 h-8 text-white fill-current" />
-            ) : (
-              <Play className="w-8 h-8 text-white fill-current ml-1" />
-            )}
-          </button>
+          {videoUrl ? (
+            <div className="space-y-5">
+              <div className="rounded-2xl overflow-hidden shadow-lg border border-[#8B7355]/10 bg-black/5">
+                <video
+                  className="w-full h-auto"
+                  controls
+                  preload="metadata"
+                  playsInline
+                  poster={posterUrl}
+                >
+                  <source src={videoUrl} type="video/mp4" />
+                  Your browser does not support video playback.
+                </video>
+              </div>
 
-          <p className="mt-6 opacity-60" style={{ fontSize: '0.875rem', color: '#5A4A42' }}>
-            Voice note placeholder
-          </p>
+              <p
+                className="opacity-70"
+                style={{ fontSize: "0.9rem", color: "#5A4A42" }}
+              >
+                Tap play to watch your birthday message.
+              </p>
+            </div>
+          ) : (
+            <p
+              className="opacity-60"
+              style={{ fontSize: "0.875rem", color: "#5A4A42" }}
+            >
+              Add your S3 video URL to show the birthday message here.
+            </p>
+          )}
         </motion.div>
       </div>
     </section>

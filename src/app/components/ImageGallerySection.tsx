@@ -49,16 +49,19 @@ export function ImageGallerySection({
     `Every time I see this, I remember how deeply ${image.caption.toLowerCase()} reflects your love.`;
 
   return (
-    <section ref={ref} className="py-24 px-6 bg-white/50">
+    <section
+      ref={ref}
+      className="py-16 sm:py-20 md:py-24 px-4 sm:px-6 bg-white/50"
+    >
       <div className="max-w-5xl mx-auto">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-4"
+          className="text-center mb-8"
           style={{
             fontFamily: "var(--font-serif)",
-            fontSize: "2.75rem",
+            fontSize: "clamp(2.1rem, 8vw, 2.75rem)",
             color: "#5A4A42",
           }}
         >
@@ -92,7 +95,7 @@ export function ImageGallerySection({
                     : { opacity: 0, scale: 0.95 }
                 }
                 transition={{ duration: 0.6, delay: 0.4 + i * 0.2 }}
-                className="relative rounded-3xl shadow-lg aspect-[4/5] cursor-pointer"
+                className="relative rounded-3xl shadow-lg aspect-[4/5] cursor-pointer w-full max-w-sm mx-auto md:max-w-none"
                 style={{ perspective: "1200px" }}
                 onMouseEnter={() => handleMouseEnter(i)}
                 onMouseLeave={() => handleMouseLeave(i)}
@@ -138,6 +141,14 @@ export function ImageGallerySection({
                       }}
                     />
                     <div
+                      className="absolute inset-0 transition-opacity duration-700"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, rgba(250, 247, 245, 0.1), rgba(212, 181, 160, 0.16))",
+                        opacity: isFlipped ? 0 : isHovered ? 0.45 : 0.25,
+                      }}
+                    />
+                    <div
                       className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent transition-opacity duration-500"
                       style={{
                         opacity: isFlipped ? 0 : isHovered ? 1 : 0.72,
@@ -147,7 +158,7 @@ export function ImageGallerySection({
                         className="absolute bottom-6 left-6 right-6 text-white text-center"
                         style={{
                           fontFamily: "var(--font-serif)",
-                          fontSize: "1.25rem",
+                          fontSize: "clamp(1.05rem, 4vw, 1.25rem)",
                         }}
                       >
                         {image.caption}
@@ -169,7 +180,7 @@ export function ImageGallerySection({
                       className="text-center"
                       style={{
                         fontFamily: "var(--font-serif)",
-                        fontSize: "1.15rem",
+                        fontSize: "clamp(1rem, 3.8vw, 1.15rem)",
                         color: "#5A4A42",
                         lineHeight: 1.75,
                       }}
@@ -191,7 +202,7 @@ export function ImageGallerySection({
               animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
               transition={{ duration: 0.8, delay: 1 + i * 0.2 }}
               style={{
-                fontSize: "1.125rem",
+                fontSize: "clamp(1rem, 3.8vw, 1.125rem)",
                 color: "#5A4A42",
                 lineHeight: 1.8,
               }}

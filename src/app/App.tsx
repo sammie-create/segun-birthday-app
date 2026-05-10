@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { HeroSection } from "./components/HeroSection";
 import { FloatingHearts } from "./components/FloatingHearts";
@@ -14,14 +14,77 @@ import { FinalSection } from "./components/FinalSection";
 import { MusicControl } from "./components/MusicControl";
 import { BalloonDrop } from "./components/BalloonDrop";
 
+const BACKGROUND_AUDIO_URL =
+  "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/Marc-Anthony-I-Need-You-mp3pm.mp3";
+const VIDEO_MESSAGE_URL =
+  "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/birthday-wish-video-1.mp4";
+const VIDEO_POSTER_URL =
+  "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/video-poster.jpg";
+
+const AUTO_SCROLL_DELAY_MS = 2200;
+const AUTO_SCROLL_STEP_PX = 1;
+const AUTO_SCROLL_INTERVAL_MS = 22;
+
 export default function App() {
   const [showContent, setShowContent] = useState(false);
   const [showBalloons, setShowBalloons] = useState(false);
   const [showRevealWash, setShowRevealWash] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+
+  const backgroundAudioRef = useRef<HTMLAudioElement | null>(null);
+  const autoScrollTimerRef = useRef<number | null>(null);
+  const autoScrollDelayRef = useRef<number | null>(null);
+  const hasUserInterruptedScrollRef = useRef(false);
+
+  const clearAutoScroll = () => {
+    if (autoScrollTimerRef.current !== null) {
+      window.clearInterval(autoScrollTimerRef.current);
+      autoScrollTimerRef.current = null;
+    }
+    if (autoScrollDelayRef.current !== null) {
+      window.clearTimeout(autoScrollDelayRef.current);
+      autoScrollDelayRef.current = null;
+    }
+  };
+
+  const stopAutoScrollOnUserAction = () => {
+    hasUserInterruptedScrollRef.current = true;
+    clearAutoScroll();
+  };
 
   useEffect(() => {
     document.documentElement.style.scrollBehavior = "smooth";
+
+    backgroundAudioRef.current = new Audio(BACKGROUND_AUDIO_URL);
+    if (backgroundAudioRef.current) {
+      backgroundAudioRef.current.loop = true;
+      backgroundAudioRef.current.volume = 0.6;
+      backgroundAudioRef.current.muted = isMuted;
+    }
+
+    return () => {
+      clearAutoScroll();
+      if (backgroundAudioRef.current) {
+        backgroundAudioRef.current.pause();
+        backgroundAudioRef.current.src = "";
+      }
+    };
   }, []);
+
+  useEffect(() => {
+    if (!showContent) return;
+
+    const handler = () => stopAutoScrollOnUserAction();
+    window.addEventListener("wheel", handler, { passive: true });
+    window.addEventListener("touchstart", handler, { passive: true });
+    window.addEventListener("keydown", handler);
+
+    return () => {
+      window.removeEventListener("wheel", handler);
+      window.removeEventListener("touchstart", handler);
+      window.removeEventListener("keydown", handler);
+    };
+  }, [showContent]);
 
   useEffect(() => {
     if (!showBalloons) return;
@@ -43,16 +106,73 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, [showRevealWash]);
 
+  useEffect(() => {
+    if (!backgroundAudioRef.current) return;
+    backgroundAudioRef.current.muted = isMuted;
+  }, [isMuted]);
+
+  useEffect(() => {
+    if (!showContent) return;
+
+    hasUserInterruptedScrollRef.current = false;
+    clearAutoScroll();
+
+    autoScrollDelayRef.current = window.setTimeout(() => {
+      if (hasUserInterruptedScrollRef.current) return;
+
+      autoScrollTimerRef.current = window.setInterval(() => {
+        const reachedBottom =
+          window.innerHeight + window.scrollY >=
+          document.documentElement.scrollHeight - 4;
+
+        if (hasUserInterruptedScrollRef.current || reachedBottom) {
+          clearAutoScroll();
+          return;
+        }
+
+        window.scrollBy({
+          top: AUTO_SCROLL_STEP_PX,
+          left: 0,
+          behavior: "auto",
+        });
+      }, AUTO_SCROLL_INTERVAL_MS);
+    }, AUTO_SCROLL_DELAY_MS);
+
+    return () => clearAutoScroll();
+  }, [showContent]);
+
   const handleEnter = () => {
     setShowRevealWash(true);
     setShowContent(true);
     setShowBalloons(true);
+
+    if (backgroundAudioRef.current) {
+      backgroundAudioRef.current.play().catch(() => {
+        // Ignore autoplay errors; user can interact with MusicControl to resume.
+      });
+    }
   };
 
   return (
     <div className="min-h-screen relative" style={{ background: "#FAF7F5" }}>
       <FloatingHearts />
-      <MusicControl />
+      <MusicControl
+        isMuted={isMuted}
+        onToggleMute={() => {
+          setIsMuted(prev => {
+            const next = !prev;
+            if (backgroundAudioRef.current) {
+              backgroundAudioRef.current.muted = next;
+              if (!next) {
+                backgroundAudioRef.current.play().catch(() => {
+                  // Playback may still require user gesture depending on browser policy.
+                });
+              }
+            }
+            return next;
+          });
+        }}
+      />
       {showBalloons && <BalloonDrop count={28} />}
 
       <AnimatePresence>
@@ -113,17 +233,17 @@ export default function App() {
               title="You as a Father"
               images={[
                 {
-                  url: "https://images.unsplash.com/photo-1775725173215-4456488c961f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
+                  url: "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/with-the-boys-1.jpg",
                   caption: "The gentlest strength",
                   note: "You make strength look soft, safe, and full of love.",
                 },
                 {
-                  url: "https://images.unsplash.com/photo-1758687126165-15540f06288b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
+                  url: "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/with-boys-2.jpeg",
                   caption: "Building dreams together",
                   note: "The way you show up for our boys is something I will never stop admiring.",
                 },
                 {
-                  url: "https://images.unsplash.com/photo-1647125529760-a17654ff8b67?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
+                  url: "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/with-the-boys-3.jpg",
                   caption: "Pure joy",
                   note: "Their joy around you says everything about the kind of father you are.",
                 },
@@ -141,17 +261,18 @@ export default function App() {
               items={[
                 {
                   image:
-                    "https://images.unsplash.com/photo-1691997378283-130832ca4f11?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/the-beginning.JPG",
                   caption: "The beginning…",
                 },
                 {
                   image:
-                    "https://images.unsplash.com/photo-1570648595508-cbc7aef77747?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
-                  caption: "Somewhere between conversations… I chose you.",
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/still-choose-you.jpg",
+                  caption:
+                    "Somewhere between conversations… I still choose you.",
                 },
                 {
                   image:
-                    "https://images.unsplash.com/photo-1560439972-1af698047fa3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080",
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/built-something-beautiful.jpg",
                   caption: "And we built something beautiful.",
                 },
               ]}
@@ -162,33 +283,39 @@ export default function App() {
               memories={[
                 {
                   image:
-                    "https://images.unsplash.com/photo-1763713512973-4be054e5400d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/memories-5.jpg",
                   caption: "My favorite smile",
+                  position: "center 25%",
                 },
                 {
                   image:
-                    "https://images.unsplash.com/photo-1587645909095-9697704e5604?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/memories-3.PNG",
                   caption: "Us, being us",
+                  position: "center bottom",
                 },
                 {
                   image:
-                    "https://images.unsplash.com/photo-1663755118007-74429849d9c1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/memories-2.JPG",
                   caption: "This moment meant everything",
+                  position: "65% center",
                 },
                 {
                   image:
-                    "https://images.unsplash.com/photo-1749831238693-07bf9bb43303?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/memories-6.PNG",
                   caption: "Just the two of us",
+                  position: "center 35%",
                 },
                 {
                   image:
-                    "https://images.unsplash.com/photo-1522808632297-5525cbe03666?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/memories-4.jpg",
                   caption: "My heart",
+                  position: "center top",
                 },
                 {
                   image:
-                    "https://images.unsplash.com/photo-1663755076465-02ffe836e15e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=800",
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/memories-1.JPG",
                   caption: "Forever grateful",
+                  position: "left center",
                 },
               ]}
             />
@@ -196,10 +323,16 @@ export default function App() {
             <LoveLetter
               title="To my sweet birthday guy"
               signature="Forever yours, always."
+              // paragraphs={[
+              //   "My dearest, words can never fully hold what I feel for you, but today I want to try. Your life is a gift, and I'm so grateful I get to love you.",
+              //   "You've shown me what home feels like—not a place, but a person. Watching you love our boys and lead our family with grace, strength, and tenderness fills my heart every day.",
+              //   "Thank you for choosing me and the boys, for showing up, and for making our world feel safe. Happy birthday, my love. You make everything better just by being in it.",
+              // ]}
               paragraphs={[
-                "My dearest, words can never fully hold what I feel for you, but today I want to try. Your life is a gift, and I'm so grateful I get to love you.",
-                "You've shown me what home feels like—not a place, but a person. Watching you love our boys and lead our family with grace, strength, and tenderness fills my heart every day.",
-                "Thank you for choosing me and the boys, for showing up, and for making our world feel safe. Happy birthday, my love. You make everything better just by being in it.",
+                "My love,",
+                "You are one of the sweetest and most selfless people I know. Life with you is easy in the best way. You’re intelligent, fun to be with, and you have this quiet way of making everything feel lighter just by being present.",
+                "I admire how you think, how you love, and how you show up for the people you care about without making a noise about it. I am so proud of you ,of the man you are, and the life you continue to build for us.",
+                "I pray that you grow stronger, healthier, and more fulfilled with each passing year. May peace follow you in every season, and may joy remain steady in your heart. May everything you touch flourish, and may your life continue to be marked by favour, love, and expansion.",
               ]}
             />
 
@@ -215,7 +348,11 @@ export default function App() {
               ]}
             />
 
-            <AudioPlayer title="I wanted you to hear this from me…" />
+            <AudioPlayer
+              title="I wanted you to hear this from me…"
+              videoUrl={VIDEO_MESSAGE_URL}
+              posterUrl={VIDEO_POSTER_URL}
+            />
 
             <FinalSection />
           </motion.div>
