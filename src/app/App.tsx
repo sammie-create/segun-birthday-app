@@ -15,11 +15,15 @@ import { MusicControl } from "./components/MusicControl";
 import { BalloonDrop } from "./components/BalloonDrop";
 
 const BACKGROUND_AUDIO_URL =
-  "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/Marc-Anthony-I-Need-You-mp3pm.mp3";
+  "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/Safire_Ray_-_I_love_you.mp3";
 const VIDEO_MESSAGE_URL =
   "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/birthday-wish-video-1.mp4";
 const VIDEO_POSTER_URL =
   "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/video-poster.jpg";
+const FAMILY_MESSAGE_VIDEO_URL =
+  "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/household-video.mp4";
+const FAMILY_MESSAGE_POSTER_URL =
+  "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/jpeg-optimizer_adebayo-household.png";
 
 const AUTO_SCROLL_DELAY_MS = 2200;
 const AUTO_SCROLL_STEP_PX = 1;
@@ -285,13 +289,13 @@ export default function App() {
                   image:
                     "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/memories-5.jpg",
                   caption: "My favorite smile",
-                  position: "center 25%",
+                  position: "center 15%",
                 },
                 {
                   image:
                     "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/memories-3.PNG",
                   caption: "Us, being us",
-                  position: "center bottom",
+                  position: "center 60%",
                 },
                 {
                   image:
@@ -309,7 +313,7 @@ export default function App() {
                   image:
                     "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/memories-4.jpg",
                   caption: "My heart",
-                  position: "center top",
+                  position: "center 15%",
                 },
                 {
                   image:
@@ -323,11 +327,6 @@ export default function App() {
             <LoveLetter
               title="To my sweet birthday guy"
               signature="Forever yours, always."
-              // paragraphs={[
-              //   "My dearest, words can never fully hold what I feel for you, but today I want to try. Your life is a gift, and I'm so grateful I get to love you.",
-              //   "You've shown me what home feels like—not a place, but a person. Watching you love our boys and lead our family with grace, strength, and tenderness fills my heart every day.",
-              //   "Thank you for choosing me and the boys, for showing up, and for making our world feel safe. Happy birthday, my love. You make everything better just by being in it.",
-              // ]}
               paragraphs={[
                 "My love,",
                 "You are one of the sweetest and most selfless people I know. Life with you is easy in the best way. You’re intelligent, fun to be with, and you have this quiet way of making everything feel lighter just by being present.",
@@ -339,12 +338,44 @@ export default function App() {
             <LittleThings
               title="Little Things I Love About You"
               items={[
-                "Your smart brain😁 my 10X guy",
-                "Your yeye dance move😂",
-                "Your handsome face and cute smile",
-                "How you show up, even when you're tired",
-                "The way you love me and our boys",
-                "How safe you make our world feel",
+                {
+                  text: "Your smart brain😁 my 10X guy",
+                  mediaType: "image",
+                  mediaUrl:
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/10x-guy.JPG",
+                },
+                {
+                  text: "Your yeye dance move😂",
+                  mediaType: "video",
+                  mediaUrl:
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/dance-moves.mp4",
+                  posterUrl:
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/dance-moves-poster.png",
+                },
+                {
+                  text: "Your handsome face and cute smile",
+                  mediaType: "image",
+                  mediaUrl:
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/jpeg-optimizer_IMG_5534.jpg",
+                },
+                {
+                  text: "How you show up, even while tired",
+                  mediaType: "image",
+                  mediaUrl:
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/with-the-boys-1.jpg",
+                },
+                {
+                  text: "The way you love me and our boys",
+                  mediaType: "image",
+                  mediaUrl:
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/with-boys-2.jpeg",
+                },
+                {
+                  text: "How safe you make our world feel",
+                  mediaType: "image",
+                  mediaUrl:
+                    "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/jpeg-optimizer_IMG_4056.jpg",
+                },
               ]}
             />
 
@@ -352,6 +383,12 @@ export default function App() {
               title="I wanted you to hear this from me…"
               videoUrl={VIDEO_MESSAGE_URL}
               posterUrl={VIDEO_POSTER_URL}
+            />
+
+            <AudioPlayer
+              title="A special message from Ope, Ayo & Segun"
+              videoUrl={FAMILY_MESSAGE_VIDEO_URL}
+              posterUrl={FAMILY_MESSAGE_POSTER_URL}
             />
 
             <FinalSection />

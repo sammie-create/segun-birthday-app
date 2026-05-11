@@ -9,11 +9,16 @@ interface HeroSectionProps {
 const HERO_TITLE = "Hi my love…";
 const HERO_TYPING_SPEED_MS = 95;
 const HERO_REVEAL_DELAY_MS = 450;
+const HERO_IMAGE_URL =
+  "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/hero-1.jpg";
+const HERO_BLUR_IMAGE_URL =
+  "https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/jpeg-optimizer_hero-blur.png";
 
 export function HeroSection({ onEnter }: HeroSectionProps) {
   const [typedTitle, setTypedTitle] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
   const [showHeroActions, setShowHeroActions] = useState(false);
+  const [isHeroImageLoaded, setIsHeroImageLoaded] = useState(false);
 
   useEffect(() => {
     if (typedTitle.length >= HERO_TITLE.length) {
@@ -32,6 +37,20 @@ export function HeroSection({ onEnter }: HeroSectionProps) {
     return () => window.clearTimeout(typingTimer);
   }, [typedTitle]);
 
+  useEffect(() => {
+    const image = new Image();
+    image.src = HERO_IMAGE_URL;
+
+    const markLoaded = () => setIsHeroImageLoaded(true);
+    image.addEventListener("load", markLoaded);
+    image.addEventListener("error", markLoaded);
+
+    return () => {
+      image.removeEventListener("load", markLoaded);
+      image.removeEventListener("error", markLoaded);
+    };
+  }, []);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 py-12 sm:px-6">
       <div
@@ -40,7 +59,19 @@ export function HeroSection({ onEnter }: HeroSectionProps) {
           backgroundImage: `
             radial-gradient(circle at center, rgba(250, 247, 245, 0.04), rgba(139, 115, 85, 0.18)),
             linear-gradient(to bottom, rgba(232, 221, 211, 0.10), rgba(212, 181, 160, 0.26)),
-            url('https://segun-birthday-app-files.s3.eu-north-1.amazonaws.com/hero-1.jpg')
+            url('${HERO_BLUR_IMAGE_URL}')
+          `,
+        }}
+      />
+
+      <div
+        className="absolute inset-0 bg-cover bg-[position:50%_32%] sm:bg-center transition-opacity duration-700"
+        style={{
+          opacity: isHeroImageLoaded ? 1 : 0,
+          backgroundImage: `
+            radial-gradient(circle at center, rgba(250, 247, 245, 0.04), rgba(139, 115, 85, 0.18)),
+            linear-gradient(to bottom, rgba(232, 221, 211, 0.10), rgba(212, 181, 160, 0.26)),
+            url('${HERO_IMAGE_URL}')
           `,
         }}
       />
