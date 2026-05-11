@@ -386,7 +386,7 @@ export default function App() {
             />
 
             <AudioPlayer
-              title="A special message from Ope, Ayo & Segun"
+              title="A special message from Ope, Dayo & Joshua"
               videoUrl={FAMILY_MESSAGE_VIDEO_URL}
               posterUrl={FAMILY_MESSAGE_POSTER_URL}
             />
